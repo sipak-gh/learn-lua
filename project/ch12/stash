@@ -1,0 +1,10 @@
+#!/usr/bin/env luajit
+-- The stash launcher: makes src/ importable, then hands over to stash.main.
+
+-- arg[0] is this script's path; its directory holds src/. This way stash
+-- works from any current directory.
+local dir = arg[0]:match("^(.*)/[^/]*$") or "."
+package.path = dir .. "/src/?.lua;" .. package.path
+
+require("stash.strict")
+os.exit(require("stash.main").run(arg))

@@ -1,0 +1,15 @@
+# stash data and scratch directories made by checkpoints and tests
+demo/
+.test-tmp/
+# build output of the single-file program (Chapter 20)
+build/
+*.o
+*.a
+*.so
+# stash's database, wherever it ends up
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+# left behind if the ch10 failing-test demo is interrupted
+*.orig

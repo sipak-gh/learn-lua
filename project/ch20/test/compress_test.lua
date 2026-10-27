@@ -1,0 +1,28 @@
+local bit = require("bit")
+local compress = require("stash.compress")
+
+test("crc32 of a known string", function()
+  eq(bit.tohex(compress.crc32("hello")), "3610a686")
+end)
+
+test("the header holds the length and checksum, big-endian", function()
+  local blob = compress.pack("hello")
+  eq(blob:sub(1, 8), "\0\0\0\5\54\16\166\134")
+  eq(compress.unpack(blob), "hello")
+end)
+
+test("repetitive data shrinks and comes back intact", function()
+  local data = ("<p>stash keeps bookmarks</p>\n"):rep(200)
+  local blob = compress.pack(data)
+  ok(#blob < #data / 20, #blob)
+  eq(compress.unpack(blob), data)
+  eq(compress.unpack(compress.pack("")), "")
+end)
+
+test("damage is detected", function()
+  local blob = compress.pack(("abc"):rep(100))
+  local bad_crc = blob:sub(1, 4) .. "\0\0\0\0" .. blob:sub(9)
+  eq(select(2, compress.unpack(bad_crc)), "checksum mismatch: d0c4b884, expected 00000000")
+  eq(select(2, compress.unpack(blob:sub(1, 12))), "corrupt data (zlib error -3)")
+  eq(select(2, compress.unpack("x")), "blob too short")
+end)

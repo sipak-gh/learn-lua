@@ -1,0 +1,3 @@
+name       count
+lua           12
+jit            3

@@ -1,0 +1,21 @@
+local fs = require("stash.fs")
+
+test("mkdir_p creates parents and accepts existing directories", function()
+  local base = tmpdir("mkdir")
+  eq(fs.mkdir_p(base .. "/a/b/c"), true)
+  eq(fs.mkdir_p(base .. "/a/b"), true)
+  ok(fs.exists(base .. "/a/b/c"))
+end)
+
+test("mkdir_p reports the C error", function()
+  local base = tmpdir("mkdir-file")
+  assert(fs.with_file(base .. "/file", "w", function() end))
+  local done, err = fs.mkdir_p(base .. "/file/sub")
+  eq(done, nil)
+  eq(err, base .. "/file/sub: Not a directory")
+end)
+
+test("dirname", function()
+  eq(fs.dirname("a/b/c.lua"), "a/b")
+  eq(fs.dirname("c.lua"), ".")
+end)
